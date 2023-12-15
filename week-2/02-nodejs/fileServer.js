@@ -17,5 +17,32 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 
+app.get("/files", (req, res) => {
+  fs.readdir(path.join(__dirname, "..", "filesExternal"), (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to retrieve" });
+    }
+    res.send(data);
+  });
+});
+
+app.get("/files/:filename", (req, res) => {
+  const { filename } = req.params;
+  fs.readFile(
+    path.join(__dirname, "../filesExternal", filename),
+    // I was facing an error here while declaring the folder path
+    // the mistake i made was not going two level up where my actual folder "filesExternal" was.
+    "utf-8",
+    (err, data) => {
+      if (err) {
+        console.error("Error reading file:", err);
+        return res.status(404).send("File not found");
+      }
+      res.send(data);
+    }
+  );
+});
+
+app.listen(3005);
 
 module.exports = app;
